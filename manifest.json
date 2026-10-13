@@ -1,0 +1,16 @@
+{
+  "name": "Nequi",
+  "short_name": "Nequi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#200020",
+  "theme_color": "#200020",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/2/29/Nequi_Logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

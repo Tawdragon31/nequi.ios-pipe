@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-black">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Nequi Colombia</title>
+  
+  <!-- Configuración PWA para iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nequi">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/2/29/Nequi_Logo.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- CDN de Tailwind CSS e Íconos -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            nequi: {
+              purple: '#200020',
+              pink: '#da0080',
+              magenta: '#e2007a',
+              card: '#2c0d2f',
+              lightpink: '#ff1493',
+              darkbg: '#140014'
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Deshabilitar selección de texto para simular app nativa */
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    input, textarea {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-nequi-darkbg text-white h-full font-sans flex justify-center items-center overflow-hidden antialiased">
+
+  <!-- Mobile Frame Wrapper -->
+  <div class="w-full max-w-md h-full sm:h-[92vh] bg-nequi-purple flex flex-col justify-between overflow-hidden sm:rounded-[48px] relative shadow-2xl border-0 sm:border-[8px] border-neutral-900">
+    
+    <!-- iPhone iOS Top Notch / Status Bar Spacer -->
+    <div class="pt-10 px-6 pb-2 flex justify-between items-center text-xs text-white/90 font-medium z-30">
+      <span id="current-time">12:00</span>
+      <div class="flex items-center space-x-2">
+        <i class="ph-bold ph-cellular-signal text-sm"></i>
+        <i class="ph-bold ph-wifi text-sm"></i>
+        <i class="ph-bold ph-battery-full text-base"></i>
+      </div>
+    </div>
+
+    <!-- MAIN SCROLLABLE CONTENT AREA -->
+    <div class="flex-1 overflow-y-auto no-scrollbar px-5 pb-24 pt-2">
+      
+      <!-- Top Header Profile & Eye Icon -->
+      <div class="flex justify-between items-center my-3">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-full bg-nequi-pink p-0.5 flex items-center justify-center shadow-lg">
+            <div class="w-full h-full rounded-full bg-nequi-purple flex items-center justify-center font-bold text-lg text-nequi-pink">
+              <i class="ph-fill ph-user"></i>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs text-pink-200/70 font-normal">Hola,</p>
+            <h2 id="user-name-display" class="text-lg font-bold tracking-tight text-white flex items-center gap-1">
+              Usuario <i class="ph-bold ph-pencil-simple text-xs text-nequi-pink cursor-pointer" onclick="editProfile()"></i>
+            </h2>
+          </div>
+        </div>
+        <button onclick="toggleBalanceVisibility()" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md">
+          <i id="eye-icon" class="ph-bold ph-eye text-xl text-white"></i>
+        </button>
+      </div>
+
+      <!-- Balance Card -->
+      <div class="mt-4 p-6 rounded-3xl bg-gradient-to-br from-[#3b083d] to-[#200020] border border-white/10 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-nequi-pink/20 rounded-full blur-2xl"></div>
+        <p class="text-xs uppercase tracking-wider font-semibold text-pink-300/80">Total disponible</p>
+        <div class="mt-2 flex items-baseline">
+          <span class="text-2xl font-semibold mr-1 text-pink-400">$</span>
+          <span id="balance-display" class="text-4xl font-extrabold tracking-tight text-white">0</span>
+        </div>
+        <div class="mt-4 pt-4 border-t border-white/10 flex justify-between items-center text-xs text-white/70">
+          <span>En bolsillos: <strong class="text-white">$0</strong></span>
+          <button onclick="openTopUpModal()" class="text-nequi-pink font-bold flex items-center gap-1">
+            <i class="ph-bold ph-plus-circle"></i> Recargar
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons Grid -->
+      <div class="grid grid-cols-4 gap-3 mt-6">
+        <button onclick="openSendModal()" class="flex flex-col items-center group">
+          <div class="w-14 h-14 rounded-2xl bg-nequi-pink text-white flex items-center justify-center text-2xl shadow-lg group-active:scale-95 transition-transform">
+            <i class="ph-bold ph-paper-plane-tilt"></i>
+          </div>
+          <span class="text-[11px] font-medium mt-2 text-center text-white/90">Envia</span>
+        </button>
+
+        <button onclick="openTopUpModal()" class="flex flex-col items-center group">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl shadow-lg border border-white/10 group-active:scale-95 transition-transform">
+            <i class="ph-bold ph-arrows-down-up"></i>
+          </div>
+          <span class="text-[11px] font-medium mt-2 text-center text-white/90">Recarga</span>
+        </button>
+
+        <button onclick="alert('Función de Pedir Dinero')" class="flex flex-col items-center group">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl shadow-lg border border-white/10 group-active:scale-95 transition-transform">
+            <i class="ph-bold ph-hand-heart"></i>
+          </div>
+          <span class="text-[11px] font-medium mt-2 text-center text-white/90">Pide</span>
+        </button>
+
+        <button onclick="alert('Generando código QR...')" class="flex flex-col items-center group">
+          <div class="w-14 h-14 rounded-2xl bg-white/10 text-white flex items-center justify-center text-2xl shadow-lg border border-white/10 group-active:scale-95 transition-transform">
+            <i class="ph-bold ph-qr-code"></i>
+          </div>
+          <span class="text-[11px] font-medium mt-2 text-center text-white/90">Sacar</span>
+        </button>
+      </div>
+
+      <!-- Services Banner Carousel -->
+      <div class="mt-7">
+        <h3 class="text-sm font-semibold text-white/80 mb-3">Tus servicios recomendados</h3>
+        <div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
+          <div class="flex-none w-36 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between h-28">
+            <i class="ph-bold ph-[#da0080] ph-shield-check text-2xl text-nequi-pink"></i>
+            <div>
+              <p class="text-xs font-bold text-white">Seguros</p>
+              <p class="text-[10px] text-white/50">Tu vida protegida</p>
+            </div>
+          </div>
+          <div class="flex-none w-36 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between h-28">
+            <i class="ph-bold ph-credit-card text-2xl text-nequi-pink"></i>
+            <div>
+              <p class="text-xs font-bold text-white">Tarjeta Nequi</p>
+              <p class="text-[10px] text-white/50">Digital o Física</p>
+            </div>
+          </div>
+          <div class="flex-none w-36 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between h-28">
+            <i class="ph-bold ph-lightning text-2xl text-nequi-pink"></i>
+            <div>
+              <p class="text-xs font-bold text-white">Servicios</p>
+              <p class="text-[10px] text-white/50">Paga tus facturas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions Section -->
+      <div class="mt-7">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-sm font-semibold text-white/80">Movimientos recientes</h3>
+          <button onclick="clearHistory()" class="text-xs text-nequi-pink font-medium">Limpiar</button>
+        </div>
+        <div id="transactions-list" class="space-y-3">
+          <!-- Transacciones inyectadas por JavaScript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR (iOS Style) -->
+    <div class="absolute bottom-0 left-0 right-0 h-20 bg-nequi-purple/90 backdrop-blur-xl border-t border-white/10 px-6 flex justify-around items-center z-20">
+      <button class="flex flex-col items-center text-nequi-pink">
+        <i class="ph-fill ph-house text-2xl"></i>
+        <span class="text-[10px] font-medium mt-1">Inicio</span>
+      </button>
+      <button onclick="openSendModal()" class="flex flex-col items-center text-white/50 hover:text-white">
+        <i class="ph-bold ph-arrows-left-right text-2xl"></i>
+        <span class="text-[10px] font-medium mt-1">Movimientos</span>
+      </button>
+      <button onclick="alert('Notificaciones')" class="flex flex-col items-center text-white/50 hover:text-white">
+        <i class="ph-bold ph-bell text-2xl"></i>
+        <span class="text-[10px] font-medium mt-1">Avisos</span>
+      </button>
+      <button onclick="editProfile()" class="flex flex-col items-center text-white/50 hover:text-white">
+        <i class="ph-bold ph-gear text-2xl"></i>
+        <span class="text-[10px] font-medium mt-1">Ajustes</span>
+      </button>
+    </div>
+
+    <!-- iOS Home Indicator Bar -->
+    <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full z-30"></div>
+
+  </div>
+
+  <!-- MODAL: RECARGAR DINERO -->
+  <div id="topup-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 hidden">
+    <div class="w-full max-w-md bg-nequi-purple rounded-t-3xl sm:rounded-3xl p-6 border border-white/10 text-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">Recargar Saldo</h3>
+        <button onclick="closeTopUpModal()" class="text-white/60 text-xl">&times;</button>
+      </div>
+      <label class="block text-xs text-white/60 mb-1">Monto a agregar ($ COP)</label>
+      <input id="topup-amount" type="number" placeholder="0" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-white text-xl font-bold mb-4 focus:outline-none focus:border-nequi-pink">
+      <button onclick="processTopUp()" class="w-full bg-nequi-pink text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-98">Aceptar Recarga</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ENVIAR DINERO -->
+  <div id="send-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 hidden">
+    <div class="w-full max-w-md bg-nequi-purple rounded-t-3xl sm:rounded-3xl p-6 border border-white/10 text-white">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold">Enviar Plata</h3>
+        <button onclick="closeSendModal()" class="text-white/60 text-xl">&times;</button>
+      </div>
+      <label class="block text-xs text-white/60 mb-1">Número de Celular</label>
+      <input id="send-phone" type="tel" placeholder="300 000 0000" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-white mb-3 focus:outline-none focus:border-nequi-pink">
+      
+      <label class="block text-xs text-white/60 mb-1">¿Cuánto vas a enviar?</label>
+      <input id="send-amount" type="number" placeholder="$ 0" class="w-full bg-white/10 border border-white/20 rounded-xl p-3 text-white text-xl font-bold mb-4 focus:outline-none focus:border-nequi-pink">
+
+      <button onclick="processSend()" class="w-full bg-nequi-pink text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-98">Sigue / Enviar</button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & STATE PERSISTENCE -->
+  <script>
+    // State Initialization
+    let balance = parseFloat(localStorage.getItem('nequi_balance')) || 150000;
+    let hideBalance = localStorage.getItem('nequi_hide') === 'true';
+    let userName = localStorage.getItem('nequi_username') || 'Alex';
+    let transactions = JSON.parse(localStorage.getItem('nequi_txs')) || [
+      { id: 1, title: 'Recarga PSE', amount: 150000, type: 'in', date: 'Hoy, 10:15 AM' }
+    ];
+
+    // Clock Logic
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('current-time').innerText = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Render UI
+    function render() {
+      document.getElementById('user-name-display').childNodes[0].nodeValue = userName + ' ';
+      
+      const balanceEl = document.getElementById('balance-display');
+      const eyeIcon = document.getElementById('eye-icon');
+
+      if (hideBalance) {
+        balanceEl.innerText = '••••••';
+        eyeIcon.className = 'ph-bold ph-eye-slash text-xl text-white';
+      } else {
+        balanceEl.innerText = balance.toLocaleString('es-CO');
+        eyeIcon.className = 'ph-bold ph-eye text-xl text-white';
+      }
+
+      // Render Transactions
+      const txContainer = document.getElementById('transactions-list');
+      if (transactions.length === 0) {
+        txContainer.innerHTML = `<p class="text-xs text-white/40 text-center py-4">No tienes movimientos recientes.</p>`;
+      } else {
+        txContainer.innerHTML = transactions.map(tx => `
+          <div class="flex justify-between items-center p-3.5 rounded-2xl bg-white/5 border border-white/5">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl ${tx.type === 'in' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-nequi-pink/20 text-nequi-pink'} flex items-center justify-center text-lg">
+                <i class="ph-bold ${tx.type === 'in' ? 'ph-arrow-down-left' : 'ph-arrow-up-right'}"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-white">${tx.title}</p>
+                <p class="text-[10px] text-white/40">${tx.date}</p>
+              </div>
+            </div>
+            <span class="text-sm font-bold ${tx.type === 'in' ? 'text-emerald-400' : 'text-white'}">
+              ${tx.type === 'in' ? '+' : '-'}$${tx.amount.toLocaleString('es-CO')}
+            </span>
+          </div>
+        `).join('');
+      }
+
+      // Persist State
+      localStorage.setItem('nequi_balance', balance);
+      localStorage.setItem('nequi_hide', hideBalance);
+      localStorage.setItem('nequi_username', userName);
+      localStorage.setItem('nequi_txs', JSON.stringify(transactions));
+    }
+
+    // Handlers
+    function toggleBalanceVisibility() {
+      hideBalance = !hideBalance;
+      render();
+    }
+
+    function editProfile() {
+      const newName = prompt('Ingresa tu nombre para mostrar:', userName);
+      if (newName && newName.trim() !== '') {
+        userName = newName.trim();
+        render();
+      }
+    }
+
+    function openTopUpModal() { document.getElementById('topup-modal').classList.remove('hidden'); }
+    function closeTopUpModal() { document.getElementById('topup-modal').classList.add('hidden'); }
+    function openSendModal() { document.getElementById('send-modal').classList.remove('hidden'); }
+    function closeSendModal() { document.getElementById('send-modal').classList.add('hidden'); }
+
+    function processTopUp() {
+      const amountInput = document.getElementById('topup-amount');
+      const val = parseFloat(amountInput.value);
+      if (val && val > 0) {
+        balance += val;
+        transactions.unshift({
+          id: Date.now(),
+          title: 'Recarga de Dinero',
+          amount: val,
+          type: 'in',
+          date: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        amountInput.value = '';
+        closeTopUpModal();
+        render();
+      }
+    }
+
+    function processSend() {
+      const phoneInput = document.getElementById('send-phone');
+      const amountInput = document.getElementById('send-amount');
+      const amount = parseFloat(amountInput.value);
+      const phone = phoneInput.value.trim();
+
+      if (!phone) {
+        alert('Escribe un número de celular');
+        return;
+      }
+      if (!amount || amount <= 0) {
+        alert('Escribe un monto válido');
+        return;
+      }
+      if (amount > balance) {
+        alert('Saldo insuficiente');
+        return;
+      }
+
+      balance -= amount;
+      transactions.unshift({
+        id: Date.now(),
+        title: `Envío a ${phone}`,
+        amount: amount,
+        type: 'out',
+        date: 'Hoy, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+
+      amountInput.value = '';
+      phoneInput.value = '';
+      closeSendModal();
+      render();
+    }
+
+    function clearHistory() {
+      transactions = [];
+      render();
+    }
+
+    // Initial Render
+    render();
+  </script>
+</body>
+</html>
